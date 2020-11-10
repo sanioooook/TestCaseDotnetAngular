@@ -1,0 +1,52 @@
+<div class="transactions-component">
+  <div class="inputs">
+    <div class="selects">
+      <select (change)="setSortByStatusTransaction($event)">
+        <option selected disabled>Status</option>
+        <option *ngFor="let status of statusesTransaction" value="{{status}}">
+          {{getStringStatus(status)}}
+        </option>
+      </select>
+
+      <select (change)="setSortByTypeTransaction($event)">
+        <option selected disabled>Type</option>
+        <option *ngFor="let type of typesTransaction" value="{{type}}">
+          {{getStringType(type)}}
+        </option>
+      </select>
+    </div>
+    <div class="buttons">
+      <input type="button" value="Import" (click)="importCSV()">
+      <input type="button" value="Export" (click)="exportToCSV()">
+      <input type="button" value="Create transaction" (click)="showModalCreateTransaction()">
+    </div>
+  </div>
+  <div class="table-transactions">
+  <table>
+    <tr>
+      <th>Id</th>
+      <th>Status</th>
+      <th>Type</th>
+      <th>Client name</th>
+      <th>Amount</th>
+      <th>Action</th>
+    </tr>
+    <tr *ngFor="let transaction of paginator.data">
+      <td>{{transaction.id}}</td>
+      <td>{{getStringStatus(transaction.status)}} </td>
+      <td>{{getStringType(transaction.type)}}</td>
+      <td>{{transaction.clientName}}</td>
+      <td>{{transaction.amount}}$</td>
+      <td>
+        <input type="button" value="Edit" (click)="showModalEditTransaction(transaction)">
+        <input type="button" value="Delete" (click)="deleteTransactionById(transaction.id)">
+      </td>
+    </tr>
+    </table>
+    <pagination [(totalItems)]="paginator.totalCount" [ngModel]="paginator.pageNumber+1"
+      (pageChanged)="pageChanged($event)">
+    </pagination>
+  </div>
+
+
+</div>

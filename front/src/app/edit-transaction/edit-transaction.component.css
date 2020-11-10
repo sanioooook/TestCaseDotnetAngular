@@ -1,0 +1,11 @@
+.edit-form,
+.inputs {
+  display: flex;
+  flex-direction: column;
+}
+
+.buttons, .selects {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

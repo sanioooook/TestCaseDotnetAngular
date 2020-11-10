@@ -1,0 +1,33 @@
+.transactions-component {
+  margin-top: 30px;
+}
+
+th, td {
+  border: 1px solid black;
+}
+
+table {
+  text-align: center;
+  width: 80%;
+}
+
+.inputs {
+  display: flex;
+  justify-content: space-around;
+}
+
+.table-transactions{
+  margin: 30px auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+pagination {
+  margin: 10px;
+}
+
+.selects *, .inputs * {
+  margin: 0 10px;
+}

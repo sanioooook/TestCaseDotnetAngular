@@ -1,0 +1,37 @@
+<div class="edit-form">
+  <div class="selects">
+    <select (change)="setStatusTransaction($event)" [(ngModel)]="transaction.status">
+      <option selected disabled>Status</option>
+      <option *ngFor="let status of statusesTransaction" [value]="status">
+        {{getStringStatus(status)}}
+      </option>
+    </select>
+
+    <select (change)="setTypeTransaction($event)" [(ngModel)]="transaction.type">
+      <option disabled>Type</option>
+      <option *ngFor="let type of typesTransaction" [value]="type">
+        {{getStringType(type)}}
+      </option>
+    </select>
+  </div>
+  <div class="inputs">
+    <input 
+      type="text" 
+      name="ClientName" 
+      [(ngModel)]="transaction.clientName"
+      placeholder="Client name"
+    >
+    <input
+      type="number"
+      min="0" 
+      step="0.1" 
+      name="Amount" 
+      [(ngModel)]="transaction.amount" 
+      placeholder="Amount"
+    >
+  </div>
+  <div class="buttons">
+    <input type="button" value="Save" (click)="saveTransaction()">
+    <input type="button" value="Close" (click)="bsModalRef.hide()">
+  </div>
+</div>
