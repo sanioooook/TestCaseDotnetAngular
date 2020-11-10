@@ -2,14 +2,14 @@
   <div class="inputs">
     <div class="selects">
       <select (change)="setSortByStatusTransaction($event)">
-        <option selected disabled>Status</option>
+        <option selected>Status</option>
         <option *ngFor="let status of statusesTransaction" value="{{status}}">
           {{getStringStatus(status)}}
         </option>
       </select>
 
       <select (change)="setSortByTypeTransaction($event)">
-        <option selected disabled>Type</option>
+        <option selected>Type</option>
         <option *ngFor="let type of typesTransaction" value="{{type}}">
           {{getStringType(type)}}
         </option>

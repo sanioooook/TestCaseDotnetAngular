@@ -59,12 +59,22 @@ export class TransactionComponent implements OnInit {
   }
 
   public setSortByTypeTransaction(e: any): void {
-    this.paginator.sortTypeBy = +e.target.value;
+    if (e.target.value === 'Type') {
+      this.paginator.sortTypeBy = null;
+    }
+    else{
+      this.paginator.sortTypeBy = +e.target.value;
+    }
     this.getAllTransactions();
   }
 
   public setSortByStatusTransaction(e: any): void {
-    this.paginator.sortStatusBy = +e.target.value;
+    if (e.target.value === 'Status') {
+      this.paginator.sortStatusBy = null;
+    }
+    else{
+      this.paginator.sortStatusBy = +e.target.value;
+    }
     this.getAllTransactions();
   }
 
@@ -85,7 +95,7 @@ export class TransactionComponent implements OnInit {
   public importCSV(): void {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'text/csv';
+    input.accept = 'text/csv'; // supported file types
     input.onchange = (ev: Event) => {
       const file = (ev.target as HTMLInputElement).files[0];
       const reader = new FileReader();
