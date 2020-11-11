@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Entities.Models;
+using FileHelpers;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using WebAPI.Classes;
@@ -31,10 +34,22 @@ namespace WebAPI.Controllers
 
     // POST: api/Transaction/Import
     [HttpPost("Import")]
-    public async Task<IActionResult> Import(CreateTransactionCommand[] commands)
+    public async Task<IActionResult> Import([FromForm] IFormFile file)
     {
-      foreach(var command in commands)
+      if(file == null || file.Length < 0)
+        return BadRequest("fileIsEmpty");
+      var engine = new FileHelperEngine<Transaction>();
+      var stream = new StreamReader(file.OpenReadStream());
+      var transactions = engine.ReadStream(stream);
+      foreach(var transaction in transactions)
       {
+        var command = new CreateTransactionCommand()
+        {
+          Type = transaction.Type,
+          ClientName = transaction.ClientName,
+          Amount = transaction.Amount,
+          Status = transaction.Status
+        };
         await Mediator.Send(command);
       }
       return Ok();
@@ -53,17 +68,13 @@ namespace WebAPI.Controllers
     {
       var transactions = await Mediator.Send(new ExportTransactionsQuery()
       {
-        SortTypeTransaction = query.SortTypeTransaction,
-        SortStatusTransaction = query.SortStatusTransaction
+        SortTypeBy = query.SortTypeBy,
+        SortStatusBy = query.SortStatusBy
       });
 
-      var contentFile = new List<byte>();
-      contentFile.AddRange(System.Text.Encoding.UTF8.GetBytes("TransactionId,Status,Type,ClientName,Amount\n"));
-      foreach(var transaction in transactions)
-      {
-        contentFile.AddRange(System.Text.Encoding.UTF8.GetBytes(transaction.ToString()));
-      }
-      return new FileContentResult(contentFile.ToArray(), contentType: "text/csv");
+      var engine = new FileHelperEngine<Transaction>(){HeaderText = @"TransactionId,Status,Type,ClientName,Amount" };
+      var transactionsString = engine.WriteString(transactions);
+      return Ok(transactionsString);
     }
 
     // GET: api/Transaction/id

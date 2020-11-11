@@ -75,8 +75,9 @@ export class TransactionService {
     return this.http.delete<any>(`${this.url}/${transactionId}`);
   }
 
-  import(transactionArray: Array<Transaction>): Observable<any> {
-    return this.http.post<any>(`${this.url}/Import`, transactionArray);
+  import(fileImport: FormData): Observable<any> {
+    // const httpHeaders = new HttpHeaders().set('content-type', 'multipart/form-data');
+    return this.http.post<any>(`${this.url}/Import`, fileImport);
   }
 
   private handleError(error: Response): Observable<never> {

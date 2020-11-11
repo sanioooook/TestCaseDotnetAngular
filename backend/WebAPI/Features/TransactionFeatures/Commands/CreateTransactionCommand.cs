@@ -33,11 +33,13 @@ namespace WebAPI.Features.TransactionFeatures.Commands
 
       public async Task<int> Handle(CreateTransactionCommand command, CancellationToken cancellationToken)
       {
-        var transaction = new Transaction();
-        transaction.Amount = command.Amount;
-        transaction.ClientName = command.ClientName;
-        transaction.Status = command.Status;
-        transaction.Type = command.Type;
+        var transaction = new Transaction
+        {
+          Amount = command.Amount,
+          ClientName = command.ClientName,
+          Status = command.Status,
+          Type = command.Type
+        };
         await _context.Transactions.AddAsync(transaction, cancellationToken);
         await _context.SaveChanges();
         return transaction.Id;

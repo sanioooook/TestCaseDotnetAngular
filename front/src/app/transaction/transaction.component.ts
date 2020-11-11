@@ -95,23 +95,13 @@ export class TransactionComponent implements OnInit {
   public importCSV(): void {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'text/csv'; // supported file types
+    input.accept = '.csv'; // supported file types
     input.onchange = (ev: Event) => {
       const file = (ev.target as HTMLInputElement).files[0];
-      const reader = new FileReader();
-      reader.readAsText(file);
-      reader.onload = () => {
-        const arrayString = this.CSVToArray(reader.result as string, ',');
-        const arrayTransaction = this.arrayStringToArrayTransaction(arrayString);
-        if (arrayTransaction && arrayTransaction.length > 0) {
-          this.transactionService.import(arrayTransaction)
-            .subscribe(() => this.getAllTransactions());
-        }
-      };
-
-      reader.onerror = () => {
-        console.error(reader.error);
-      };
+      const formData = new FormData();
+      formData.append('file', file);
+      this.transactionService.import(formData)
+        .subscribe(() => this.getAllTransactions());
     };
     input.click();
   }
@@ -128,127 +118,9 @@ export class TransactionComponent implements OnInit {
       { initialState: { transaction } }).onHide.subscribe(() => this.getAllTransactions());
   }
 
-  public showModalCreateTransaction(transaction: Transaction): void {
+  public showModalCreateTransaction(): void {
     this.modalService.show(CreateTransactionComponent)
       .onHide.subscribe(() => this.getAllTransactions());
-  }
-
-  private CSVToArray(strData: string, strDelimiter: string): any[][] {
-    // Check to see if the delimiter is defined. If not,
-    // then default to comma.
-    strDelimiter = (strDelimiter || ',');
-
-    // Create a regular expression to parse the CSV values.
-    const objPattern = new RegExp(
-      (
-        // Delimiters.
-        '(\\' + strDelimiter + '|\\r?\\n|\\r|^)' +
-        // Quoted fields.
-        '(?:"([^"]*(?:""[^"]*)*)"|' +
-        // Standard fields.
-        '([^"\\' + strDelimiter + '\\r\\n]*))'
-      ),
-      'gi'
-    );
-
-    // Create an array to hold our data. Give the array
-    // a default empty first row.
-    const arrData = [[]];
-
-    // Create an array to hold our individual pattern
-    // matching groups.
-    let arrMatches = null;
-
-    // Keep looping over the regular expression matches
-    // until we can no longer find a match.
-    // tslint:disable-next-line: no-conditional-assignment
-    while (arrMatches = objPattern.exec(strData)) {
-
-      // Get the delimiter that was found.
-      const strMatchedDelimiter = arrMatches[1];
-
-      // Check to see if the given delimiter has a length
-      // (is not the start of string) and if it matches
-      // field delimiter. If id does not, then we know
-      // that this delimiter is a row delimiter.
-      if (
-        strMatchedDelimiter.length &&
-        strMatchedDelimiter !== strDelimiter
-      ) {
-
-        // Since we have reached a new row of data,
-        // add an empty row to our data array.
-        arrData.push([]);
-
-      }
-
-      let strMatchedValue: any;
-
-      // Now that we have our delimiter out of the way,
-      // let's check to see which kind of value we
-      // captured (quoted or unquoted).
-      if (arrMatches[2]) {
-
-        // We found a quoted value. When we capture
-        // this value, unescape any double quotes.
-        strMatchedValue = arrMatches[2].replace(
-          new RegExp('""', 'g'),
-          '"'
-        );
-
-      } else {
-
-        // We found a non-quoted value.
-        strMatchedValue = arrMatches[3];
-
-      }
-
-
-      // Now that we have our value string, let's add
-      // it to the data array.
-      arrData[arrData.length - 1].push(strMatchedValue);
-    }
-
-    // Return the parsed data.
-    return (arrData);
-  }
-
-  private arrayStringToArrayTransaction(arayString: any[][]): Array<Transaction> {
-    const arrayTransaction = new Array<Transaction>();
-    const headers = arayString[0];
-    arayString.splice(0, 1);
-    arayString.forEach((arr: Array<string>) => {
-      const transaction = new Transaction();
-      for (let i = 0; i < arr.length; i++) {
-        switch (headers[i]) {
-          case 'Status': {
-            transaction.status = StatusTransaction[arr[i]];
-            break;
-          }
-          case 'Type': {
-            transaction.type = TypeTransaction[arr[i]];
-            break;
-          }
-          case 'ClientName': {
-            transaction.clientName = arr[i];
-            break;
-          }
-          case 'Amount': {
-            transaction.amount = +arr[i].replace('$', '');
-            break;
-          }
-          default:
-            break;
-        }
-      }
-      if (transaction.amount &&
-        transaction.clientName &&
-        this.getStringStatus(transaction.status) &&
-        this.getStringType(transaction.type)) {
-        arrayTransaction.push(transaction);
-      }
-    });
-    return arrayTransaction;
   }
 
   pageChanged(event: any): void {

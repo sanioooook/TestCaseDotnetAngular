@@ -1,11 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using Entities.Converters;
 using Entities.Enums;
+using FileHelpers;
 
 namespace Entities.Models
 {
-  [Table("Transaction")]
+  [Table("Transaction"), DelimitedRecord(","), IgnoreFirst(1)]
   public class Transaction
   {
     public int Id { get; set; }
@@ -16,11 +17,7 @@ namespace Entities.Models
 
     public string ClientName { get; set; }
 
+    [FieldConverter(typeof(MoneyConverter))]
     public double Amount { get; set; }
-
-    public override string ToString()
-    {
-      return $"{Id},{Status},{Type},{ClientName},${Amount.ToString("0.00", CultureInfo.InvariantCulture)}\n";
-    }
   }
 }

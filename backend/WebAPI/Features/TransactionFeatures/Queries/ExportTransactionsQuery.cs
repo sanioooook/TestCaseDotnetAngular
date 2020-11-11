@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,14 +7,13 @@ using Entities.Enums;
 using Entities.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.Classes;
 
 namespace WebAPI.Features.TransactionFeatures.Queries
 {
   public class ExportTransactionsQuery : IRequest<IEnumerable<Transaction>>
   {
-    public EnumStatusTransaction? SortStatusTransaction { get; set; }
-    public EnumTypeTransaction? SortTypeTransaction { get; set; }
+    public EnumStatusTransaction? SortStatusBy { get; set; }
+    public EnumTypeTransaction? SortTypeBy { get; set; }
     public class ExportTransactionsQueryHandler : IRequestHandler<ExportTransactionsQuery, IEnumerable<Transaction>>
     {
 
@@ -34,24 +31,15 @@ namespace WebAPI.Features.TransactionFeatures.Queries
 
       private static IEnumerable<Transaction> SortTransaction(IEnumerable<Transaction> transactions, ExportTransactionsQuery pagination)
       {
-        if(pagination.SortStatusTransaction != null && pagination.SortTypeTransaction != null)
+        if(pagination.SortTypeBy != null)
         {
-          transactions = transactions
-            .OrderByDescending((a) => a.Type == pagination.SortTypeTransaction && a.Status == pagination.SortStatusTransaction)
-            .ToList();
+          transactions =
+            transactions.OrderByDescending((a) => a.Type == pagination.SortTypeBy).ToList();
         }
-        else
+        if(pagination.SortStatusBy != null)
         {
-          if(pagination.SortTypeTransaction != null)
-          {
-            transactions =
-              transactions.OrderByDescending((a) => a.Type == pagination.SortTypeTransaction).ToList();
-          }
-          if(pagination.SortStatusTransaction != null)
-          {
-            transactions =
-              transactions.OrderByDescending((a) => a.Status == pagination.SortStatusTransaction).ToList();
-          }
+          transactions =
+            transactions.OrderByDescending((a) => a.Status == pagination.SortStatusBy).ToList();
         }
         return transactions;
       }
