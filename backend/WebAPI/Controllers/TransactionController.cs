@@ -5,8 +5,12 @@ using FileHelpers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WebAPI.Features.TransactionFeatures.Commands;
-using WebAPI.Features.TransactionFeatures.Queries;
+using WebAPI.Features.TransactionFeatures.Commands.CreateTransaction;
+using WebAPI.Features.TransactionFeatures.Commands.DeleteTransactionById;
+using WebAPI.Features.TransactionFeatures.Commands.UpdateTransaction;
+using WebAPI.Features.TransactionFeatures.Queries.ExportTransactions;
+using WebAPI.Features.TransactionFeatures.Queries.GetAllTransactions;
+using WebAPI.Features.TransactionFeatures.Queries.GetTransactionById;
 
 namespace WebAPI.Controllers
 {
@@ -68,14 +72,16 @@ namespace WebAPI.Controllers
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-      return Ok(await Mediator.Send(new GetTransactionByIdQuery { Id = id }));
+      var transaction = await Mediator.Send(new GetTransactionByIdQuery {Id = id});
+      return transaction == null? (IActionResult)NotFound(): Ok();
     }
 
     // DELETE: api/Transaction/id
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-      return Ok(await Mediator.Send(new DeleteTransactionByIdCommand { Id = id }));
+      var transactionId = await Mediator.Send(new DeleteTransactionByIdCommand {Id = id});
+      return transactionId != id ? (IActionResult)NotFound() : Ok();
     }
 
     // PUT: api/Transaction/id
@@ -87,8 +93,8 @@ namespace WebAPI.Controllers
         return BadRequest();
       }
 
-      var updatedTransaction = await Mediator.Send(command);
-      return updatedTransaction == null ? (IActionResult)NotFound() : Ok(updatedTransaction.Id);
+      var updatedTransactionId = await Mediator.Send(command);
+      return updatedTransactionId != id ? (IActionResult)NotFound() : Ok(updatedTransactionId);
     }
   }
 }
