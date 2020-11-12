@@ -11,13 +11,17 @@ import { AppComponent } from './app.component';
 import { TransactionComponent } from './transaction/transaction.component';
 import { EditTransactionComponent } from './edit-transaction/edit-transaction.component';
 import { CreateTransactionComponent } from './create-transaction/create-transaction.component';
+import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
+import { TableTransactionsComponent } from './table-transactions/table-transactions.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TransactionComponent,
     EditTransactionComponent,
-    CreateTransactionComponent
+    CreateTransactionComponent,
+    EnumToArrayPipe,
+    TableTransactionsComponent
   ],
   imports: [
     BrowserModule,

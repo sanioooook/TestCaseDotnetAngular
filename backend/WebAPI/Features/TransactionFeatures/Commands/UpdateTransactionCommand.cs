@@ -6,10 +6,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Attributes.Validators;
 using Entities.Enums;
+using Entities.Models;
 
 namespace WebAPI.Features.TransactionFeatures.Commands
 {
-  public class UpdateTransactionCommand : IRequest<int>
+  public class UpdateTransactionCommand : IRequest<Transaction>
   {
     [Required]
     public int Id { get; set; }
@@ -26,29 +27,30 @@ namespace WebAPI.Features.TransactionFeatures.Commands
     [Required, Range(0d, double.MaxValue)]
     public double Amount { get; set; }
 
-    public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransactionCommand, int>
+  }
+  public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransactionCommand, Transaction>
+  {
+    private readonly RepositoryContext _context;
+
+    public UpdateTransactionCommandHandler(RepositoryContext context)
     {
-      private readonly IRepositoryContext _context;
+      _context = context;
+    }
 
-      public UpdateTransactionCommandHandler(IRepositoryContext context)
+    public async Task<Transaction> Handle(UpdateTransactionCommand command, CancellationToken cancellationToken)
+    {
+      var transaction = await _context.Transactions
+        .FirstOrDefaultAsync(a => a.Id == command.Id, cancellationToken);
+      if(transaction == null)
       {
-        _context = context;
+        return null;
       }
-
-      public async Task<int> Handle(UpdateTransactionCommand command, CancellationToken cancellationToken)
-      {
-        var transaction = await _context.Transactions.FirstOrDefaultAsync(a => a.Id == command.Id, cancellationToken: cancellationToken);
-        if(transaction == null)
-        {
-          return default;
-        }
-        transaction.Status = command.Status;
-        transaction.Amount = command.Amount;
-        transaction.ClientName = command.ClientName;
-        transaction.Type = command.Type;
-        await _context.SaveChanges();
-        return transaction.Id;
-      }
+      transaction.Status = command.Status;
+      transaction.Amount = command.Amount;
+      transaction.ClientName = command.ClientName;
+      transaction.Type = command.Type;
+      await _context.SaveChangesAsync(cancellationToken);
+      return transaction;
     }
   }
 }

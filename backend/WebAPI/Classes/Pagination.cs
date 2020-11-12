@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Entities.Enums;
-using WebAPI.Attributes.Validators;
 
 namespace WebAPI.Classes
 {
@@ -19,8 +17,5 @@ namespace WebAPI.Classes
 
     public int? PageCount { get; set; }
 
-    public EnumStatusTransaction? SortStatusBy { get; set; }
-
-    public EnumTypeTransaction? SortTypeBy { get; set; }
   }
 }

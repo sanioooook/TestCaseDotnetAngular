@@ -1,0 +1,21 @@
+<table>
+  <tr>
+    <th>Id</th>
+    <th>Status</th>
+    <th>Type</th>
+    <th>Client name</th>
+    <th>Amount</th>
+    <th>Action</th>
+  </tr>
+  <tr *ngFor="let transaction of transactions">
+    <td>{{transaction.id}}</td>
+    <td>{{transactionStatus[transaction.status]}} </td>
+    <td>{{transactionTypes[transaction.type]}}</td>
+    <td>{{transaction.clientName}}</td>
+    <td>{{transaction.amount}}$</td>
+    <td>
+      <input type="button" value="Edit" (click)="editTransaction(transaction)">
+      <input type="button" value="Delete" (click)="deleteTransactionById(transaction.id)">
+    </td>
+  </tr>
+</table>

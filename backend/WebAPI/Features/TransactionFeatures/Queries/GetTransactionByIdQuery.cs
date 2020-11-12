@@ -12,8 +12,8 @@ namespace WebAPI.Features.TransactionFeatures.Queries
     public int Id { get; set; }
     public class GetTransactionByIdQueryHandler : IRequestHandler<GetTransactionByIdQuery, Transaction>
     {
-      private readonly IRepositoryContext _context;
-      public GetTransactionByIdQueryHandler(IRepositoryContext context)
+      private readonly RepositoryContext _context;
+      public GetTransactionByIdQueryHandler(RepositoryContext context)
       {
         _context = context;
       }

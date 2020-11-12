@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Entities;
@@ -14,53 +13,54 @@ namespace WebAPI.Features.TransactionFeatures.Queries
   {
     public Pagination<Transaction> Pagination { get; set; }
 
+    public SortBy SortBy { get; set; }
+
     public class GetAllTransactionsQueryHandler : IRequestHandler<GetAllTransactionsQuery, Pagination<Transaction>>
     {
-      private readonly IRepositoryContext _context;
-      public GetAllTransactionsQueryHandler(IRepositoryContext context)
+      private readonly RepositoryContext _context;
+      public GetAllTransactionsQueryHandler(RepositoryContext context)
       {
         _context = context;
       }
       public async Task<Pagination<Transaction>> Handle(GetAllTransactionsQuery query, CancellationToken cancellationToken)
       {
-        var transactions = await _context.Transactions
-          .ToListAsync(cancellationToken);
-        transactions?.AsReadOnly();
+        var transactions = _context.Transactions.Select(transaction => transaction);
 
-        if(query.Pagination.SortStatusBy != null || query.Pagination.SortTypeBy != null)
+        if(query.SortBy != null)
         {
-          transactions = SortTransaction(transactions, query.Pagination);
+          if(query.SortBy.SortStatusBy != null && query.SortBy.SortTypeBy != null)
+          {
+            transactions =
+              transactions.OrderByDescending(a => a.Type == query.SortBy.SortTypeBy)
+                .ThenByDescending(a => a.Status == query.SortBy.SortStatusBy);
+          }
+          else
+          {
+            if(query.SortBy.SortTypeBy != null)
+            {
+              transactions =
+                transactions.OrderByDescending(a => a.Type == query.SortBy.SortTypeBy);
+            }
+            if(query.SortBy.SortStatusBy != null)
+            {
+              transactions =
+                transactions.OrderByDescending(a => a.Status == query.SortBy.SortStatusBy);
+            }
+          }
         }
 
-        var paginationTransaction = transactions!
-          .Skip(query.Pagination.PageSize * query.Pagination.PageNumber)
-          .Take(query.Pagination.PageSize)
-          .ToList();
+        transactions = transactions.Skip(query.Pagination.PageSize * query.Pagination.PageNumber)
+          .Take(query.Pagination.PageSize);
+
+        var paginationTransaction = await transactions.ToListAsync(cancellationToken);
         return new Pagination<Transaction>()
         {
-          TotalCount = transactions.Count,
+          TotalCount = _context.Transactions.Count(),
           Data = paginationTransaction,
           PageSize = query.Pagination.PageSize,
           PageNumber = query.Pagination.PageNumber,
-          PageCount = paginationTransaction.Count ,
-          SortTypeBy = query.Pagination.SortTypeBy,
-          SortStatusBy = query.Pagination.SortStatusBy
+          PageCount = paginationTransaction.Count
         };
-      }
-
-      private static List<Transaction> SortTransaction(List<Transaction> transactions, Pagination<Transaction> pagination)
-      {
-        if(pagination.SortTypeBy != null)
-        {
-          transactions =
-            transactions.OrderByDescending(a => a.Type == pagination.SortTypeBy).ToList();
-        }
-        if(pagination.SortStatusBy != null)
-        {
-          transactions =
-            transactions.OrderByDescending(a => a.Status == pagination.SortStatusBy).ToList();
-        }
-        return transactions;
       }
     }
   }

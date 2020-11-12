@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Entities;
@@ -16,8 +15,8 @@ namespace WebAPI.Features.TransactionFeatures.Commands
 
     public class DeleteTransactionByIdCommandHandler : IRequestHandler<DeleteTransactionByIdCommand, int>
     {
-      private readonly IRepositoryContext _context;
-      public DeleteTransactionByIdCommandHandler(IRepositoryContext context)
+      private readonly RepositoryContext _context;
+      public DeleteTransactionByIdCommandHandler(RepositoryContext context)
       {
         _context = context;
       }
@@ -30,7 +29,7 @@ namespace WebAPI.Features.TransactionFeatures.Commands
         }
 
         _context.Transactions.Remove(transaction);
-        await _context.SaveChanges();
+        await _context.SaveChangesAsync(cancellationToken);
         return transaction.Id;
       }
     }

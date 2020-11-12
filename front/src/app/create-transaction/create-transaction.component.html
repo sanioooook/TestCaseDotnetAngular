@@ -2,15 +2,17 @@
   <div class="selects">
     <select (change)="setStatusTransaction($event)">
       <option selected disabled>Status</option>
-      <option *ngFor="let status of statusesTransaction" [value]="status">
-        {{getStringStatus(status)}}
+      <option *ngFor="let status of transactionStatus | enumToArray"
+        value="{{transactionStatus[status]}}">
+        {{status}}
       </option>
     </select>
 
     <select (change)="setTypeTransaction($event)">
-      <option disabled>Type</option>
-      <option *ngFor="let type of typesTransaction" [value]="type">
-        {{getStringType(type)}}
+      <option selected disabled>Type</option>
+      <option *ngFor="let type of transactionTypes | enumToArray"
+        value="{{transactionTypes[type]}}">
+        {{type}}
       </option>
     </select>
   </div>

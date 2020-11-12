@@ -5,24 +5,12 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-  public interface IRepositoryContext
-  {
-    DbSet<Transaction> Transactions { get; set; }
-
-    Task<int> SaveChanges();
-  }
-
-  public class RepositoryContext : DbContext, IRepositoryContext
+  public class RepositoryContext : DbContext
   {
     public DbSet<Transaction> Transactions { get; set; }
 
     public RepositoryContext(DbContextOptions options) : base(options)
     {
-    }
-
-    public async Task<int> SaveChanges()
-    {
-      return await base.SaveChangesAsync();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

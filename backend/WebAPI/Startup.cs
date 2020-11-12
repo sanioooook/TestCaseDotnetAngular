@@ -36,7 +36,7 @@ namespace WebAPI
             .WithOrigins("http://localhost:4200");
         });
       });
-      services.AddDbContext<IRepositoryContext, RepositoryContext>(options =>
+      services.AddDbContext<RepositoryContext>(options =>
         options.UseSqlServer(
           Configuration.GetConnectionString("DefaultConnection"),
           b => b.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)));

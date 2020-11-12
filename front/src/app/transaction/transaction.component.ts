@@ -1,45 +1,60 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Pagination } from '../classes/pagination';
+import { Pagination } from '../interfaces/pagination';
 import { Transaction } from '../classes/transaction';
 import { CreateTransactionComponent } from '../create-transaction/create-transaction.component';
 import { EditTransactionComponent } from '../edit-transaction/edit-transaction.component';
 import { StatusTransaction } from '../enums/status-transaction.enum';
 import { TypeTransaction } from '../enums/type-transaction.enum';
+import { SortBy } from '../interfaces/sort-by';
 import { TransactionService } from '../services/transaction.service';
+import { AutoUnsubscribe } from 'ngx-auto-unsubscribe';
+import { Subscription } from 'rxjs';
 
+@AutoUnsubscribe()
 @Component({
   selector: 'app-transaction',
   templateUrl: './transaction.component.html',
   styleUrls: ['./transaction.component.css']
 })
-export class TransactionComponent implements OnInit {
+export class TransactionComponent implements OnInit, OnDestroy {
 
-  public statusesTransaction =
-    [
-      StatusTransaction.Pending,
-      StatusTransaction.Cancelled,
-      StatusTransaction.Completed
-    ];
-  public typesTransaction =
-    [
-      TypeTransaction.Withdrawal,
-      TypeTransaction.Refill
-    ];
-  public paginator = new Pagination<Transaction>();
+  transactionStatus = StatusTransaction;
+  transactionTypes = TypeTransaction;
+  paginator: Pagination<Transaction>;
+  sortBy: SortBy;
+  private getAllTransactionsSubscriber: Subscription;
+  private exportSubscriber: Subscription;
+  private importSubscriber: Subscription;
+  private deleteSubscriber: Subscription;
+  private editSubscriber: Subscription;
+  private createSubscriber: Subscription;
+
   constructor(private transactionService: TransactionService,
-              private modalService: BsModalService) { }
+              private modalService: BsModalService) {
+    this.paginator = {
+      pageNumber: 0,
+      pageSize: 10,
+      data: null,
+      pageCount: 0,
+      totalCount: 0
+    };
+    this.sortBy = {
+      sortStatusBy: null,
+      sortTypeBy: null
+    };
+  }
+  ngOnDestroy(): void {
+
+  }
 
   ngOnInit(): void {
-    this.paginator.pageNumber = 0;
-    this.paginator.pageSize = 10;
-    this.paginator.sortStatusBy = null;
-    this.paginator.sortTypeBy = null;
     this.getAllTransactions();
   }
 
-  public getAllTransactions(): void {
-    this.transactionService.getTransactions(this.paginator).subscribe(
+  getAllTransactions(): void {
+    this.getAllTransactionsSubscriber =
+      this.transactionService.getTransactions(this.paginator, this.sortBy).subscribe(
       data => {
         this.paginator.data = data.data;
         this.paginator.pageCount = data.pageCount;
@@ -50,76 +65,69 @@ export class TransactionComponent implements OnInit {
     );
   }
 
-  public getStringStatus(status: number): string {
-    return StatusTransaction[status];
-  }
-
-  public getStringType(type: number): string {
-    return TypeTransaction[type];
-  }
-
-  public setSortByTypeTransaction(e: any): void {
+  setSortByTypeTransaction(e: any): void {
     if (e.target.value === 'Type') {
-      this.paginator.sortTypeBy = null;
+      this.sortBy.sortTypeBy = null;
     }
     else{
-      this.paginator.sortTypeBy = +e.target.value;
+      this.sortBy.sortTypeBy = +e.target.value;
     }
     this.getAllTransactions();
   }
 
-  public setSortByStatusTransaction(e: any): void {
+  setSortByStatusTransaction(e: any): void {
     if (e.target.value === 'Status') {
-      this.paginator.sortStatusBy = null;
+      this.sortBy.sortStatusBy = null;
     }
     else{
-      this.paginator.sortStatusBy = +e.target.value;
+      this.sortBy.sortStatusBy = +e.target.value;
     }
     this.getAllTransactions();
   }
 
-  public exportToCSV(): void {
-    this.transactionService.getTransactionsFile(
-      this.paginator.sortTypeBy, this.paginator.sortStatusBy)
-      .subscribe((data: string) => {
+  exportToCSV(): void {
+    this.exportSubscriber = this.transactionService.export(this.sortBy)
+      .subscribe((data: Blob) => {
         if (data) {
           const link = document.createElement('a');
-          link.download = 'data.csv';
-          const blob = new Blob([data], { type: 'text/csv' });
-          link.href = window.URL.createObjectURL(blob);
+          link.download = 'data.xlsx';
+          link.href = window.URL.createObjectURL(new Blob([data]));
           link.click();
+          link.remove();
         }
       });
   }
 
-  public importCSV(): void {
+  importCSV(): void {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.csv'; // supported file types
     input.onchange = (ev: Event) => {
       const file = (ev.target as HTMLInputElement).files[0];
+      (ev.target as HTMLInputElement).remove();
       const formData = new FormData();
       formData.append('file', file);
-      this.transactionService.import(formData)
+      this.importSubscriber = this.transactionService.import(formData)
         .subscribe(() => this.getAllTransactions());
     };
     input.click();
+    input.remove();
   }
 
-  public deleteTransactionById(transactionId: number): void {
+  deleteTransactionById(transactionId: number): void {
     if (confirm(`Do you really want to delete this entry? (Id=${transactionId})`)) {
-      this.transactionService.deleteTransactionById(transactionId)
+      this.deleteSubscriber = this.transactionService.deleteTransactionById(transactionId)
         .subscribe(() => this.getAllTransactions());
     }
   }
 
-  public showModalEditTransaction(transaction: Transaction): void {
-    this.modalService.show(EditTransactionComponent,
+  showModalEditTransaction(transaction: Transaction): void {
+    this.editSubscriber = this.modalService.show(EditTransactionComponent,
       { initialState: { transaction } }).onHide.subscribe(() => this.getAllTransactions());
   }
 
-  public showModalCreateTransaction(): void {
-    this.modalService.show(CreateTransactionComponent)
+  showModalCreateTransaction(): void {
+    this.createSubscriber = this.modalService.show(CreateTransactionComponent)
       .onHide.subscribe(() => this.getAllTransactions());
   }
 

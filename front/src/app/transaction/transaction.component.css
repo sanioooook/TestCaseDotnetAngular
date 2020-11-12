@@ -2,26 +2,22 @@
   margin-top: 30px;
 }
 
-th, td {
-  border: 1px solid black;
-}
-
-table {
-  text-align: center;
-  width: 80%;
-}
-
 .inputs {
   display: flex;
   justify-content: space-around;
 }
 
+app-table-transactions{
+  width: 100%;
+}
+
 .table-transactions{
   margin: 30px auto;
-  width: 100%;
+  width: 50vw;
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: auto;
 }
 
 pagination {
@@ -30,4 +26,11 @@ pagination {
 
 .selects *, .inputs * {
   margin: 0 10px;
+}
+
+@media screen and (max-width: 800px){
+  .table-transactions {
+    margin: 0;
+    width: auto;
+  }
 }

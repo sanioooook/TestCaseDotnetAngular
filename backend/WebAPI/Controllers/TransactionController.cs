@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using Entities.Models;
 using FileHelpers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using WebAPI.Classes;
 using WebAPI.Features.TransactionFeatures.Commands;
 using WebAPI.Features.TransactionFeatures.Queries;
 
@@ -17,64 +14,54 @@ namespace WebAPI.Controllers
   [ApiController]
   public class TransactionController : ControllerBase
   {
-    private IMediator _mediator;
-
-    protected IMediator Mediator
+    public TransactionController (IMediator mediator)
     {
-      get { return _mediator ??= HttpContext.RequestServices.GetService<IMediator>(); }
+      Mediator = mediator;
     }
+
+    private IMediator Mediator { get; }
 
     // POST: api/Transaction
     [HttpPost]
     public async Task<IActionResult> Create(CreateTransactionCommand command)
     {
-      return Ok(await Mediator.Send(command));
+      var resultCreate = await Mediator.Send(command);
+      return resultCreate != 0 ? (IActionResult)Ok() : BadRequest("This entry already exists in the database");
     }
-
 
     // POST: api/Transaction/Import
     [HttpPost("Import")]
     public async Task<IActionResult> Import([FromForm] IFormFile file)
     {
-      if(file == null || file.Length < 0)
+      if(file == null || file.Length <= 0)
         return BadRequest("fileIsEmpty");
-      var engine = new FileHelperEngine<Transaction>();
+      var engine = new FileHelperEngine<CreateTransactionCommand>();
       var stream = new StreamReader(file.OpenReadStream());
       var transactions = engine.ReadStream(stream);
       foreach(var transaction in transactions)
       {
-        var command = new CreateTransactionCommand()
-        {
-          Type = transaction.Type,
-          ClientName = transaction.ClientName,
-          Amount = transaction.Amount,
-          Status = transaction.Status
-        };
-        await Mediator.Send(command);
+        await Mediator.Send(transaction);
       }
       return Ok();
     }
 
     // GET: api/Transaction
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] Pagination<Transaction> query)
+    public async Task<IActionResult> GetAll([FromQuery] GetAllTransactionsQuery query)
     {
-      return Ok(await Mediator.Send(new GetAllTransactionsQuery(){Pagination = query}));
+      return Ok(await Mediator.Send(query));
     }
 
     // GET: api/Transaction/Export
     [HttpGet("Export")]
     public async Task<IActionResult> GetFileExport([FromQuery] ExportTransactionsQuery query)
     {
-      var transactions = await Mediator.Send(new ExportTransactionsQuery()
-      {
-        SortTypeBy = query.SortTypeBy,
-        SortStatusBy = query.SortStatusBy
-      });
+      var transactions = await Mediator.Send(query);
 
-      var engine = new FileHelperEngine<Transaction>(){HeaderText = @"TransactionId,Status,Type,ClientName,Amount" };
-      var transactionsString = engine.WriteString(transactions);
-      return Ok(transactionsString);
+      return File(
+        transactions.ToArray(),
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "data.xlsx");
     }
 
     // GET: api/Transaction/id
@@ -99,7 +86,9 @@ namespace WebAPI.Controllers
       {
         return BadRequest();
       }
-      return Ok(await Mediator.Send(command));
+
+      var updatedTransaction = await Mediator.Send(command);
+      return updatedTransaction == null ? (IActionResult)NotFound() : Ok(updatedTransaction.Id);
     }
   }
 }

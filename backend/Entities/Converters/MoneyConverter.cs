@@ -9,12 +9,12 @@ namespace Entities.Converters
     public override object StringToField(string from)
     {
       from = from.Trim(new char[] { '$' });
-      return Convert.ToDouble(double.Parse(from /*,NumberStyles.AllowCurrencySymbol*/, CultureInfo.InvariantCulture));
+      return Convert.ToDouble(double.Parse(from, CultureInfo.InvariantCulture));
     }
 
     public override string FieldToString(object fieldValue)
     {
-      return "$" + ((double)fieldValue).ToString("0.00", CultureInfo.InvariantCulture);
+      return (string)fieldValue;
     }
 
   }

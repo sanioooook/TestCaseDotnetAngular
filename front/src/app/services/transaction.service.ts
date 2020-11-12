@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Transaction } from '../classes/transaction';
-import { Pagination } from '../classes/pagination';
+import { Pagination } from '../interfaces/pagination';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { TypeTransaction } from '../enums/type-transaction.enum';
-import { StatusTransaction } from '../enums/status-transaction.enum';
+import { SortBy } from '../classes/sort-by';
 
 
 @Injectable({
@@ -18,15 +17,16 @@ export class TransactionService {
 
   url = 'https://localhost:5001/api/Transaction';
 
-  getTransactions(pagination: Pagination<any>): Observable<Pagination<Transaction>> {
+  getTransactions(pagination: Pagination<any>, sortBy: SortBy)
+    : Observable<Pagination<Transaction>> {
     let httpParams = new HttpParams()
-      .set('pageNumber', pagination.pageNumber.toString())
-      .set('pageSize', pagination.pageSize.toString());
-    if (pagination.sortStatusBy !== null) {
-      httpParams = httpParams.set('sortStatusBy', pagination.sortStatusBy.toString());
+      .set('pagination.pageNumber', pagination.pageNumber.toString())
+      .set('pagination.pageSize', pagination.pageSize.toString());
+    if (sortBy.sortStatusBy !== null) {
+      httpParams = httpParams.set('sortBy.sortStatusBy', sortBy.sortStatusBy.toString());
     }
-    if (pagination.sortTypeBy !== null) {
-      httpParams = httpParams.set('sortTypeBy', pagination.sortTypeBy.toString());
+    if (sortBy.sortTypeBy !== null) {
+      httpParams = httpParams.set('sortBy.sortTypeBy', sortBy.sortTypeBy.toString());
     }
     return this.http.get<Pagination<Transaction>>(this.url, {
       params: httpParams
@@ -34,27 +34,21 @@ export class TransactionService {
       .pipe(map(data => data), catchError(err => this.handleError(err)));
   }
 
-  getTransactionsFile(
-    sortTypeTransaction: TypeTransaction,
-    sortStatusTransaction: StatusTransaction): Observable<any> {
-    let httpParams = new HttpParams();
+  export(sortBy: SortBy): Observable<any> {
     const url = `${this.url}/Export`;
-    if (sortStatusTransaction !== null) {
-      httpParams = httpParams.set('sortStatusBy', sortStatusTransaction.toString());
+    let httpParams = new HttpParams();
+    if (sortBy.sortStatusBy != null) {
+      httpParams = httpParams.set('sortBy.sortStatusBy', sortBy.sortStatusBy.toString());
     }
-    if (sortTypeTransaction !== null) {
-      httpParams = httpParams.set('sortTypeBy', sortTypeTransaction.toString());
+    if (sortBy.sortTypeBy != null) {
+      httpParams = httpParams.set('sortBy.sortTypeBy', sortBy.sortTypeBy.toString());
     }
-    const httpRequest = new HttpRequest<string>('GET', url, {
-      responseType: 'text',
-      params: httpParams
-    });
-    return this.http.request<string>(httpRequest)
-      .pipe(map(response => {
-        if (response.status === 200) {
-          return response.body;
-        }
-      }), catchError(err => this.handleError(err)));
+    return this.http.get<Blob>(url,
+      {
+        params: httpParams,
+        responseType: 'blob'
+      })
+      .pipe(map(response => response), catchError(err => this.handleError(err)));
   }
 
   getTransactionById(id: number): Observable<Transaction[]> {
