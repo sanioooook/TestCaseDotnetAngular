@@ -1,10 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Entities.Enums;
+﻿using Entities.Enums;
 
-namespace Entities.Models
+namespace WebAPI.Features.TransactionFeatures.Queries.GetAllTransactions
 {
-  [Table("Transaction")]
-  public class Transaction
+  public class TransactionForGetAll
   {
     public int Id { get; set; }
 

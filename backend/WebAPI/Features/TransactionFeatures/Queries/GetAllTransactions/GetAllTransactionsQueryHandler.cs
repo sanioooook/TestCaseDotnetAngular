@@ -2,21 +2,20 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Entities;
-using Entities.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Classes;
 
 namespace WebAPI.Features.TransactionFeatures.Queries.GetAllTransactions
 {
-  public class GetAllTransactionsQueryHandler : IRequestHandler<GetAllTransactionsQuery, Pagination<Transaction>>
+  public class GetAllTransactionsQueryHandler : IRequestHandler<GetAllTransactionsQuery, Pagination<TransactionForGetAll>>
   {
     private readonly RepositoryContext _context;
     public GetAllTransactionsQueryHandler(RepositoryContext context)
     {
       _context = context;
     }
-    public async Task<Pagination<Transaction>> Handle(GetAllTransactionsQuery query, CancellationToken cancellationToken)
+    public async Task<Pagination<TransactionForGetAll>> Handle(GetAllTransactionsQuery query, CancellationToken cancellationToken)
     {
       var transactions = _context.Transactions.Select(transaction => transaction);
 
@@ -46,14 +45,23 @@ namespace WebAPI.Features.TransactionFeatures.Queries.GetAllTransactions
       transactions = transactions.Skip(query.Pagination.PageSize * query.Pagination.PageNumber)
         .Take(query.Pagination.PageSize);
 
-      var paginationTransaction = await transactions.ToListAsync(cancellationToken);
-      return new Pagination<Transaction>()
+      var transactionForGetAll = (from transaction in await transactions.ToListAsync(cancellationToken)
+      select new TransactionForGetAll()
+      {
+        Type = transaction.Type,
+        Status = transaction.Status,
+        ClientName = transaction.ClientName,
+        Amount = transaction.Amount,
+        Id = transaction.Id
+      }).ToList();
+
+      return new Pagination<TransactionForGetAll>()
       {
         TotalCount = _context.Transactions.Count(),
-        Data = paginationTransaction,
+        Data = transactionForGetAll,
         PageSize = query.Pagination.PageSize,
         PageNumber = query.Pagination.PageNumber,
-        PageCount = paginationTransaction.Count
+        PageCount = transactionForGetAll.Count
       };
     }
   }
