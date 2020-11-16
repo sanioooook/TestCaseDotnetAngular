@@ -50,14 +50,14 @@ namespace WebAPI.Controllers
     }
 
     // GET: api/Transaction
-    [HttpGet]
+    [HttpGet,ProducesResponseType(typeof(TransactionForGetAll), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllTransactionsQuery query)
     {
       return Ok(await Mediator.Send(query));
     }
 
     // GET: api/Transaction/Export
-    [HttpGet("Export")]
+    [HttpGet("Export"),ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFileExport([FromQuery] ExportTransactionsQuery query)
     {
       var transactions = await Mediator.Send(query);
@@ -69,11 +69,11 @@ namespace WebAPI.Controllers
     }
 
     // GET: api/Transaction/id
-    [HttpGet("{id}")]
+    [HttpGet("{id}"),ProducesResponseType(typeof(TransactionForGetById), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById(int id)
     {
       var transaction = await Mediator.Send(new GetTransactionByIdQuery {Id = id});
-      return transaction == null? (IActionResult)NotFound(): Ok();
+      return transaction == null? (IActionResult)NotFound(): Ok(transaction);
     }
 
     // DELETE: api/Transaction/id

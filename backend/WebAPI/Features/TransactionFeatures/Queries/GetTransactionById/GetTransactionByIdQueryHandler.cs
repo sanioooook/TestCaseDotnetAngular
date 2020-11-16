@@ -16,14 +16,16 @@ namespace WebAPI.Features.TransactionFeatures.Queries.GetTransactionById
     public async Task<TransactionForGetById> Handle(GetTransactionByIdQuery query, CancellationToken cancellationToken)
     {
       var transaction = await _context.Transactions.FirstOrDefaultAsync(a => a.Id == query.Id, cancellationToken);
-      return new TransactionForGetById()
-      {
-        Type = transaction.Type,
-        Status = transaction.Status,
-        ClientName = transaction.ClientName,
-        Amount = transaction.Amount,
-        Id = transaction.Id
-      };
+      return transaction != null
+        ? new TransactionForGetById()
+        {
+          Type = transaction.Type,
+          Status = transaction.Status,
+          ClientName = transaction.ClientName,
+          Amount = transaction.Amount,
+          Id = transaction.Id
+        }
+        : null;
     }
   }
 }
