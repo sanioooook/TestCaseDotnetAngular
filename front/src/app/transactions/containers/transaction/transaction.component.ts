@@ -1,15 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { Pagination } from '../interfaces/pagination';
-import { Transaction } from '../classes/transaction';
-import { CreateTransactionComponent } from '../create-transaction/create-transaction.component';
-import { EditTransactionComponent } from '../edit-transaction/edit-transaction.component';
-import { StatusTransaction } from '../enums/status-transaction.enum';
-import { TypeTransaction } from '../enums/type-transaction.enum';
-import { SortBy } from '../interfaces/sort-by';
-import { TransactionService } from '../services/transaction.service';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { Pagination } from '../../models/interfaces/pagination';
+import { Transaction } from '../../models/interfaces/transaction';
+import { CreateTransactionComponent } from '../../components/create-transaction/create-transaction.component';
+import { EditTransactionComponent } from '../../components/edit-transaction/edit-transaction.component';
+import { StatusTransaction } from '../../models/enums/status-transaction.enum';
+import { TypeTransaction } from '../../models/enums/type-transaction.enum';
+import { SortBy } from '../../models/interfaces/sort-by';
+import { TransactionService } from '../../services/transaction.service';
 import { AutoUnsubscribe } from 'ngx-auto-unsubscribe';
 import { Subscription } from 'rxjs';
+import { TranslationWidth } from '@angular/common';
 
 @AutoUnsubscribe()
 @Component({
@@ -29,6 +30,10 @@ export class TransactionComponent implements OnInit, OnDestroy {
   private deleteSubscriber: Subscription;
   private editSubscriber: Subscription;
   private createSubscriber: Subscription;
+  private updateSubscriber: Subscription;
+  private createSubsriber: Subscription;
+  private updateModalRef: BsModalRef;
+  private createModalRef: BsModalRef;
 
   constructor(private transactionService: TransactionService,
               private modalService: BsModalService) {
@@ -122,17 +127,39 @@ export class TransactionComponent implements OnInit, OnDestroy {
   }
 
   showModalEditTransaction(transaction: Transaction): void {
-    this.editSubscriber = this.modalService.show(EditTransactionComponent,
-      { initialState: { transaction } }).onHide.subscribe(() => this.getAllTransactions());
+    this.updateModalRef = this.modalService.show(EditTransactionComponent,
+      { initialState: { transaction } });
+    this.editSubscriber = this.updateModalRef
+      .onHide.subscribe(() => {
+        this.updateTransaction(this.updateModalRef.content.transaction as Transaction);
+      });
   }
 
   showModalCreateTransaction(): void {
-    this.createSubscriber = this.modalService.show(CreateTransactionComponent)
-      .onHide.subscribe(() => this.getAllTransactions());
+    this.createModalRef = this.modalService.show(CreateTransactionComponent);
+    this.createSubscriber = this.createModalRef
+      .onHide.subscribe(() =>
+        this.createTransaction(this.createModalRef.content.transaction as Transaction));
   }
 
   pageChanged(event: any): void {
     this.paginator.pageNumber = event.page - 1;
     this.getAllTransactions();
   }
+
+  updateTransaction(transaction: Transaction): void {
+    this.updateSubscriber = this.transactionService.updateTransaction(transaction)
+      .subscribe(() => this.getAllTransactions());
+  }
+
+  createTransaction(transaction: Transaction): void {
+    if (transaction.amount &&
+      transaction.clientName &&
+      this.transactionStatus[transaction.status] &&
+      this.transactionTypes[transaction.type]) {
+      this.createSubsriber = this.transactionService.createTransaction(transaction)
+        .subscribe(() => this.getAllTransactions());
+    }
+  }
+
 }

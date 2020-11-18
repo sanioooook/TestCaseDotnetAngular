@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Transaction } from '../classes/transaction';
-import { Pagination } from '../interfaces/pagination';
+import { Transaction } from '../models/interfaces/transaction';
+import { Pagination } from '../models/interfaces/pagination';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { SortBy } from '../classes/sort-by';
+import { SortBy } from '../models/interfaces/sort-by';
 
 
 @Injectable({
@@ -43,7 +43,7 @@ export class TransactionService {
     if (sortBy.sortTypeBy != null) {
       httpParams = httpParams.set('sortBy.sortTypeBy', sortBy.sortTypeBy.toString());
     }
-    return this.http.get<Blob>(url,
+    return this.http.get(url,
       {
         params: httpParams,
         responseType: 'blob'

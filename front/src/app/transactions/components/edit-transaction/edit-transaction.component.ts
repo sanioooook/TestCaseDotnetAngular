@@ -2,10 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AutoUnsubscribe } from 'ngx-auto-unsubscribe';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subscription } from 'rxjs';
-import { Transaction } from '../classes/transaction';
-import { StatusTransaction } from '../enums/status-transaction.enum';
-import { TypeTransaction } from '../enums/type-transaction.enum';
-import { TransactionService } from '../services/transaction.service';
+import { Transaction } from '../../models/interfaces/transaction';
+import { StatusTransaction } from '../../models/enums/status-transaction.enum';
+import { TypeTransaction } from '../../models/enums/type-transaction.enum';
+import { TransactionService } from '../../services/transaction.service';
 
 @AutoUnsubscribe()
 @Component({
@@ -21,7 +21,6 @@ export class EditTransactionComponent implements OnInit, OnDestroy {
   transaction: Transaction;
   transactionStatus = StatusTransaction;
   transactionTypes = TypeTransaction;
-  private saveSubscriber: Subscription;
 
   ngOnDestroy(): void {
   }
@@ -38,8 +37,7 @@ export class EditTransactionComponent implements OnInit, OnDestroy {
   }
 
   saveTransaction(): void {
-    this.saveSubscriber = this.transactionService.updateTransaction(this.transaction)
-      .subscribe(() => this.bsModalRef.hide());
+    this.bsModalRef.hide();
   }
 
 }

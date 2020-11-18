@@ -1,7 +1,7 @@
 import { Component, Input, EventEmitter, OnInit, Output } from '@angular/core';
-import { Transaction } from '../classes/transaction';
-import { StatusTransaction } from '../enums/status-transaction.enum';
-import { TypeTransaction } from '../enums/type-transaction.enum';
+import { Transaction } from '../../models/interfaces/transaction';
+import { StatusTransaction } from '../../models/enums/status-transaction.enum';
+import { TypeTransaction } from '../../models/enums/type-transaction.enum';
 
 @Component({
   selector: 'app-table-transactions',
