@@ -11,8 +11,8 @@ namespace WebAPI.Features.TransactionFeatures.Commands.CreateTransaction
 {
   public class CreateTransactionCommandHandler : IRequestHandler<CreateTransactionCommand, int>
   {
-    private readonly RepositoryContext _context;
-    public CreateTransactionCommandHandler(RepositoryContext context)
+    private readonly ApplicationDbContext _context;
+    public CreateTransactionCommandHandler(ApplicationDbContext context)
     {
       _context = context;
     }

@@ -8,8 +8,8 @@ namespace WebAPI.Features.TransactionFeatures.Queries.GetTransactionById
 {
   public class GetTransactionByIdQueryHandler : IRequestHandler<GetTransactionByIdQuery, TransactionForGetById>
   {
-    private readonly RepositoryContext _context;
-    public GetTransactionByIdQueryHandler(RepositoryContext context)
+    private readonly ApplicationDbContext _context;
+    public GetTransactionByIdQueryHandler(ApplicationDbContext context)
     {
       _context = context;
     }

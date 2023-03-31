@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Transaction } from '../models/interfaces/transaction';
-import { Pagination } from '../models/interfaces/pagination';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { SortBy } from '../models/interfaces/sort-by';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {Transaction} from '../models/interfaces/transaction';
+import {Pagination} from '../models/interfaces/pagination';
+import {Observable, throwError} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
+import {SortBy} from '../models/interfaces/sort-by';
 
 
 @Injectable({
@@ -29,7 +29,8 @@ export class TransactionService {
       httpParams = httpParams.set('sortBy.sortTypeBy', sortBy.sortTypeBy.toString());
     }
     return this.http.get<Pagination<Transaction>>(this.url, {
-      params: httpParams
+      params: httpParams,
+      headers: new HttpHeaders()
     })
       .pipe(map(data => data), catchError(err => this.handleError(err)));
   }
@@ -57,12 +58,13 @@ export class TransactionService {
   }
 
   createTransaction(transaction: Transaction): Observable<number> {
-    return this.http.post<number>(this.url, transaction)
+    return this.http.post<number>(this.url, transaction, {headers: new HttpHeaders()})
       .pipe(map(data => data), catchError(err => this.handleError(err)));
   }
 
   updateTransaction(transaction: Transaction): Observable<any> {
-    return this.http.put<any>(`${this.url}/${transaction.id}`, transaction);
+    return this.http.put<any>(
+      `${this.url}/${transaction.id}`, transaction, {headers: new HttpHeaders()});
   }
 
   deleteTransactionById(transactionId: number): Observable<any> {

@@ -10,8 +10,8 @@ namespace WebAPI.Features.TransactionFeatures.Queries.GetAllTransactions
 {
   public class GetAllTransactionsQueryHandler : IRequestHandler<GetAllTransactionsQuery, Pagination<TransactionForGetAll>>
   {
-    private readonly RepositoryContext _context;
-    public GetAllTransactionsQueryHandler(RepositoryContext context)
+    private readonly ApplicationDbContext _context;
+    public GetAllTransactionsQueryHandler(ApplicationDbContext context)
     {
       _context = context;
     }

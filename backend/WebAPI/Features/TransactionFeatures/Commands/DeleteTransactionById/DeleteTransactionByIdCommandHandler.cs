@@ -8,8 +8,8 @@ namespace WebAPI.Features.TransactionFeatures.Commands.DeleteTransactionById
 {
   public class DeleteTransactionByIdCommandHandler : IRequestHandler<DeleteTransactionByIdCommand, int>
   {
-    private readonly RepositoryContext _context;
-    public DeleteTransactionByIdCommandHandler(RepositoryContext context)
+    private readonly ApplicationDbContext _context;
+    public DeleteTransactionByIdCommandHandler(ApplicationDbContext context)
     {
       _context = context;
     }

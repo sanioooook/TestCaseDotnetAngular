@@ -8,9 +8,9 @@ namespace WebAPI.Features.TransactionFeatures.Commands.UpdateTransaction
 {
   public class UpdateTransactionCommandHandler : IRequestHandler<UpdateTransactionCommand, int>
   {
-    private readonly RepositoryContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public UpdateTransactionCommandHandler(RepositoryContext context)
+    public UpdateTransactionCommandHandler(ApplicationDbContext context)
     {
       _context = context;
     }

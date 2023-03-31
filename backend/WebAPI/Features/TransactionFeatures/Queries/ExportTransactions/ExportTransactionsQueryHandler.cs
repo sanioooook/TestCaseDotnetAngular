@@ -14,8 +14,8 @@ namespace WebAPI.Features.TransactionFeatures.Queries.ExportTransactions
   public class ExportTransactionsQueryHandler : IRequestHandler<ExportTransactionsQuery, IEnumerable<byte>>
   {
 
-    private readonly RepositoryContext _context;
-    public ExportTransactionsQueryHandler(RepositoryContext context)
+    private readonly ApplicationDbContext _context;
+    public ExportTransactionsQueryHandler(ApplicationDbContext context)
     {
       _context = context;
     }
@@ -65,8 +65,8 @@ namespace WebAPI.Features.TransactionFeatures.Queries.ExportTransactions
       {
         currentRow++;
         worksheet.Cell(currentRow, 1).Value = transaction.Id;
-        worksheet.Cell(currentRow, 2).Value = transaction.Type;
-        worksheet.Cell(currentRow, 4).Value = transaction.Status;
+        worksheet.Cell(currentRow, 2).Value = transaction.Type.ToString();
+        worksheet.Cell(currentRow, 4).Value = transaction.Status.ToString();
         worksheet.Cell(currentRow, 5).Value = transaction.ClientName;
         worksheet.Cell(currentRow, 3).Value = transaction.Amount;
       }

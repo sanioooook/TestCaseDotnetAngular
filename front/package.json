@@ -22,7 +22,6 @@
     "@angular/platform-browser": "^14.3.0",
     "@angular/platform-browser-dynamic": "^14.3.0",
     "@angular/router": "^14.3.0",
-    "bootstrap": "^4.5.3",
     "ngx-auto-unsubscribe": "^3.0.1",
     "ngx-bootstrap": "^6.1.0",
     "rxjs": "~6.6.3",
