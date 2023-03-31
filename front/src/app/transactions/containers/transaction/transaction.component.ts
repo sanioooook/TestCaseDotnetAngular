@@ -1,22 +1,27 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { Pagination } from '../../models/interfaces/pagination';
-import { Transaction } from '../../models/interfaces/transaction';
-import { CreateTransactionComponent } from '../../components/create-transaction/create-transaction.component';
-import { EditTransactionComponent } from '../../components/edit-transaction/edit-transaction.component';
-import { StatusTransaction } from '../../models/enums/status-transaction.enum';
-import { TypeTransaction } from '../../models/enums/type-transaction.enum';
-import { SortBy } from '../../models/interfaces/sort-by';
-import { TransactionService } from '../../services/transaction.service';
-import { AutoUnsubscribe } from 'ngx-auto-unsubscribe';
-import { Subscription } from 'rxjs';
-import { TranslationWidth } from '@angular/common';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Pagination} from '../../models/interfaces/pagination';
+import {Transaction} from '../../models/interfaces/transaction';
+import {
+  CreateTransactionComponent,
+  EditTransactionComponent,
+} from '../../components';
+import {StatusTransaction} from '../../models/enums/status-transaction.enum';
+import {TypeTransaction} from '../../models/enums/type-transaction.enum';
+import {SortBy} from '../../models/interfaces/sort-by';
+import {TransactionService} from '../../services/transaction.service';
+import {AutoUnsubscribe} from 'ngx-auto-unsubscribe';
+import {Subscription} from 'rxjs';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {Overlay} from '@angular/cdk/overlay';
+import {dialogConfigHelper} from '../../../helpers';
+import {catchError, tap} from 'rxjs/operators';
+import {PageEvent} from "@angular/material/paginator";
 
 @AutoUnsubscribe()
 @Component({
   selector: 'app-transaction',
   templateUrl: './transaction.component.html',
-  styleUrls: ['./transaction.component.css']
+  styleUrls: ['./transaction.component.scss']
 })
 export class TransactionComponent implements OnInit, OnDestroy {
 
@@ -32,15 +37,16 @@ export class TransactionComponent implements OnInit, OnDestroy {
   private createSubscriber: Subscription;
   private updateSubscriber: Subscription;
   private createSubsriber: Subscription;
-  private updateModalRef: BsModalRef;
-  private createModalRef: BsModalRef;
 
-  constructor(private transactionService: TransactionService,
-              private modalService: BsModalService) {
+  constructor(
+    private transactionService: TransactionService,
+    private dialog: MatDialog,
+    private overlay: Overlay,
+  ) {
     this.paginator = {
       pageNumber: 0,
       pageSize: 10,
-      data: null,
+      data: [],
       pageCount: 0,
       totalCount: 0
     };
@@ -49,6 +55,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
       sortTypeBy: null
     };
   }
+
   ngOnDestroy(): void {
 
   }
@@ -60,21 +67,20 @@ export class TransactionComponent implements OnInit, OnDestroy {
   getAllTransactions(): void {
     this.getAllTransactionsSubscriber =
       this.transactionService.getTransactions(this.paginator, this.sortBy).subscribe(
-      data => {
-        this.paginator.data = data.data;
-        this.paginator.pageCount = data.pageCount;
-        this.paginator.pageNumber = data.pageNumber;
-        this.paginator.pageSize = data.pageSize;
-        this.paginator.totalCount = data.totalCount;
-      }
-    );
+        data => {
+          this.paginator.data = data.data;
+          this.paginator.pageCount = data.pageCount;
+          this.paginator.pageNumber = data.pageNumber;
+          this.paginator.pageSize = data.pageSize;
+          this.paginator.totalCount = data.totalCount;
+        }
+      );
   }
 
   setSortByTypeTransaction(e: any): void {
     if (e.target.value === 'Type') {
       this.sortBy.sortTypeBy = null;
-    }
-    else{
+    } else {
       this.sortBy.sortTypeBy = +e.target.value;
     }
     this.getAllTransactions();
@@ -83,8 +89,7 @@ export class TransactionComponent implements OnInit, OnDestroy {
   setSortByStatusTransaction(e: any): void {
     if (e.target.value === 'Status') {
       this.sortBy.sortStatusBy = null;
-    }
-    else{
+    } else {
       this.sortBy.sortStatusBy = +e.target.value;
     }
     this.getAllTransactions();
@@ -127,39 +132,48 @@ export class TransactionComponent implements OnInit, OnDestroy {
   }
 
   showModalEditTransaction(transaction: Transaction): void {
-    this.updateModalRef = this.modalService.show(EditTransactionComponent,
-      { initialState: { transaction } });
-    this.editSubscriber = this.updateModalRef
-      .onHide.subscribe(() => {
-        this.updateTransaction(this.updateModalRef.content.transaction as Transaction);
-      });
+    const updateModalRef = this.dialog
+      .open(EditTransactionComponent, dialogConfigHelper(this.overlay, transaction));
+    this.editSubscriber = updateModalRef.componentInstance
+      .saveTransaction.subscribe((model) =>
+        this.updateTransaction(model, updateModalRef));
   }
 
   showModalCreateTransaction(): void {
-    this.createModalRef = this.modalService.show(CreateTransactionComponent);
-    this.createSubscriber = this.createModalRef
-      .onHide.subscribe(() =>
-        this.createTransaction(this.createModalRef.content.transaction as Transaction));
+    const createModalRef = this.dialog
+      .open(CreateTransactionComponent, dialogConfigHelper(this.overlay));
+    this.createSubscriber = createModalRef.componentInstance
+      .createTransaction.subscribe((transaction) =>
+        this.createTransaction(transaction, createModalRef));
   }
 
-  pageChanged(event: any): void {
-    this.paginator.pageNumber = event.page - 1;
+  pageChanged(event: PageEvent): void {
+    this.paginator.pageNumber = event.pageIndex;
     this.getAllTransactions();
   }
 
-  updateTransaction(transaction: Transaction): void {
+  updateTransaction(transaction: Transaction, updateModalRef: MatDialogRef<EditTransactionComponent>): void {
     this.updateSubscriber = this.transactionService.updateTransaction(transaction)
-      .subscribe(() => this.getAllTransactions());
+      .pipe(tap(() => {
+          this.getAllTransactions();
+          updateModalRef.close();
+        }),
+        catchError((err, caught) => caught))
+      .subscribe();
   }
 
-  createTransaction(transaction: Transaction): void {
+  createTransaction(transaction: Transaction, createModalRef: MatDialogRef<CreateTransactionComponent>): void {
     if (transaction.amount &&
       transaction.clientName &&
       this.transactionStatus[transaction.status] &&
       this.transactionTypes[transaction.type]) {
       this.createSubsriber = this.transactionService.createTransaction(transaction)
-        .subscribe(() => this.getAllTransactions());
+        .pipe(tap(() => {
+            this.getAllTransactions();
+            createModalRef.close();
+          }),
+          catchError((err, caught) => caught))
+        .subscribe();
     }
   }
-
 }

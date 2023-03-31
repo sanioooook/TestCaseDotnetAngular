@@ -1,36 +1,73 @@
 <div class="transactions-component">
-  <div class="inputs">
-    <div class="selects">
-      <select (change)="setSortByStatusTransaction($event)">
-        <option selected>Status</option>
-        <option *ngFor="let status of transactionStatus | enumToArray"
-          value="{{transactionStatus[status]}}">
-          {{status}}
-        </option>
-      </select>
-
-      <select (change)="setSortByTypeTransaction($event)">
-        <option selected>Type</option>
-        <option *ngFor="let type of transactionTypes | enumToArray"
-          value="{{transactionTypes[type]}}">
-          {{type}}
-        </option>
-      </select>
-    </div>
-    <div class="buttons">
-      <button (click)="importCSV()">Import</button>
-      <button (click)="exportToCSV()">Export</button>
-      <button (click)="showModalCreateTransaction()">Create transaction</button>
-    </div>
-  </div>
   <div class="table-transactions">
+    <ng-template #toolbarTpl>
+      <div class="d-flex align-items-center">
+        <div>
+          <mat-form-field class="mr-2">
+            <mat-label>{{'Status'}}</mat-label>
+            <mat-select [(ngModel)]="sortBy.sortStatusBy">
+              <mat-option [value]="null">{{'None'}}</mat-option>
+              <mat-option *ngFor="let status of transactionStatus | enumToArray" [value]="transactionStatus[status]">
+                {{status}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>{{'Type'}}</mat-label>
+            <mat-select [(ngModel)]="sortBy.sortTypeBy">
+              <mat-option [value]="null">{{'None'}}</mat-option>
+              <mat-option *ngFor="let type of transactionTypes | enumToArray" [value]="transactionTypes[type]">
+                {{type}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="spacer"></div>
+        <div>
+          <button
+            class="mr-2"
+            mat-icon-button
+            color="primary"
+            (click)="importCSV()"
+            [matTooltip]="('Import transactions')"
+          >
+            <mat-icon>file_upload</mat-icon>
+          </button>
+          <button
+            class="mr-2"
+            mat-icon-button
+            color="primary"
+            (click)="exportToCSV()"
+            [matTooltip]="('Export transactions')"
+          >
+            <mat-icon>file_download</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="accent"
+            (click)="showModalCreateTransaction()"
+            [matTooltip]="('Add new transaction')"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </div>
+    </ng-template>
     <app-table-transactions
       [transactions]="paginator.data"
       (edit)="showModalEditTransaction($event)"
       (delete)="deleteTransactionById($event)"
+      [paginatorTpl]="paginatorTpl"
+      [toolbarTpl]="toolbarTpl"
     ></app-table-transactions>
-    <pagination [(totalItems)]="paginator.totalCount" [ngModel]="paginator.pageNumber+1"
-      (pageChanged)="pageChanged($event)">
-    </pagination>
+    <ng-template #paginatorTpl>
+      <mat-paginator
+        [length]="paginator.totalCount"
+        [pageSize]="paginator.pageSize"
+        [pageSizeOptions]="[5,10,25,100]"
+        [pageIndex]="paginator.pageNumber"
+        (page)="pageChanged($event)">
+      </mat-paginator>
+    </ng-template>
   </div>
 </div>

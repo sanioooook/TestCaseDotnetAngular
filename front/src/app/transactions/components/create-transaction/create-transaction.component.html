@@ -1,30 +1,56 @@
-<div class="create-form">
-  <div class="selects">
-    <select (change)="setStatusTransaction($event)">
-      <option selected disabled>Status</option>
-      <option *ngFor="let status of transactionStatus | enumToArray"
-        value="{{transactionStatus[status]}}">
+<h3 mat-dialog-title>{{'Create transaction'}}</h3>
+<div mat-dialog-content class="d-flex flex-column">
+  <mat-form-field>
+    <mat-label>{{'Status'}}</mat-label>
+    <mat-select [(ngModel)]="transaction.status">
+      <mat-option [value]="null">{{'None'}}</mat-option>
+      <mat-option *ngFor="let status of transactionStatus | enumToArray"
+                  [value]="transactionStatus[status]">
         {{status}}
-      </option>
-    </select>
-
-    <select (change)="setTypeTransaction($event)">
-      <option selected disabled>Type</option>
-      <option *ngFor="let type of transactionTypes | enumToArray"
-        value="{{transactionTypes[type]}}">
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{'Type'}}</mat-label>
+    <mat-select [(ngModel)]="transaction.type">
+      <mat-option [value]="null">{{'None'}}</mat-option>
+      <mat-option *ngFor="let type of transactionTypes | enumToArray"
+                  [value]="transactionTypes[type]">
         {{type}}
-      </option>
-    </select>
-  </div>
-  <div class="inputs">
-    <input type="text" name="ClientName" [(ngModel)]="transaction.clientName"
-      placeholder="Client name">
-    <input type="number" min="0" step="0.1" name="Amount" [(ngModel)]="transaction.amount"
-      placeholder="Amount">
-  </div>
-  <div class="buttons">
-    <input type="button" value="Create" (click)="createTransaction()">
-    <input type="button" value="Close" (click)="bsModalRef.hide()">
-  </div>
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{'Client name'}}</mat-label>
+    <input
+      matInput
+      type="text"
+      [(ngModel)]="transaction.clientName"
+    >
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>{{'Amount'}}</mat-label>
+    <input
+      matInput
+      type="number"
+      min="0"
+      step="0.1"
+      [(ngModel)]="transaction.amount"
+    >
+  </mat-form-field>
 </div>
-
+<div mat-dialog-actions class="d-flex justify-content-around">
+  <button
+    mat-raised-button
+    (click)="close()"
+  >
+    {{'Cancel'}}
+  </button>
+  <button
+    mat-raised-button
+    color="accent"
+    (click)="onCreateTransaction()"
+  >
+    {{'Create'}}
+  </button>
+</div>

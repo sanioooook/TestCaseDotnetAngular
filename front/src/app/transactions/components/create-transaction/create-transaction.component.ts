@@ -1,21 +1,21 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Transaction } from '../../models/interfaces/transaction';
-import { StatusTransaction } from '../../models/enums/status-transaction.enum';
-import { TypeTransaction } from '../../models/enums/type-transaction.enum';
-import { TransactionService } from '../../services/transaction.service';
+import {Component, OnInit, OnDestroy, EventEmitter} from '@angular/core';
+import {Transaction} from '../../models/interfaces/transaction';
+import {StatusTransaction} from '../../models/enums/status-transaction.enum';
+import {TypeTransaction} from '../../models/enums/type-transaction.enum';
+import {MatDialogRef} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-create-transaction',
   templateUrl: './create-transaction.component.html',
-  styleUrls: ['./create-transaction.component.css']
+  styleUrls: ['./create-transaction.component.scss']
 })
 export class CreateTransactionComponent implements OnInit, OnDestroy {
+  createTransaction: EventEmitter<Transaction> = new EventEmitter<Transaction>();
 
-  constructor(private transactionService: TransactionService,
-              public bsModalRef: BsModalRef) { }
+  constructor(public dialogRef: MatDialogRef<CreateTransactionComponent>) {
+  }
 
-  transaction = { amount: 0.0, clientName: '', id: 0, status: null, type: null } as Transaction;
+  transaction: Transaction;
   transactionStatus = StatusTransaction;
   transactionTypes = TypeTransaction;
 
@@ -23,17 +23,14 @@ export class CreateTransactionComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.transaction = {amount: 0.0, clientName: '', id: 0, status: null, type: null};
   }
 
-  setTypeTransaction(e: any): void {
-    this.transaction.type = +e.target.value;
+  onCreateTransaction(): void {
+    this.createTransaction.emit(this.transaction);
   }
 
-  setStatusTransaction(e: any): void {
-    this.transaction.status = +e.target.value;
-  }
-
-  createTransaction(): void {
-    this.bsModalRef.hide();
+  close(result = false): void {
+    this.dialogRef.close(result);
   }
 }

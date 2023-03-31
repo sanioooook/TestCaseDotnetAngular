@@ -1,24 +1,24 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AutoUnsubscribe } from 'ngx-auto-unsubscribe';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subscription } from 'rxjs';
-import { Transaction } from '../../models/interfaces/transaction';
-import { StatusTransaction } from '../../models/enums/status-transaction.enum';
-import { TypeTransaction } from '../../models/enums/type-transaction.enum';
-import { TransactionService } from '../../services/transaction.service';
+import {Component, OnInit, OnDestroy, Inject, EventEmitter} from '@angular/core';
+import {AutoUnsubscribe} from 'ngx-auto-unsubscribe';
+import {Transaction} from '../../models/interfaces/transaction';
+import {StatusTransaction} from '../../models/enums/status-transaction.enum';
+import {TypeTransaction} from '../../models/enums/type-transaction.enum';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @AutoUnsubscribe()
 @Component({
   selector: 'app-edit-transaction',
   templateUrl: './edit-transaction.component.html',
-  styleUrls: ['./edit-transaction.component.css']
+  styleUrls: ['./edit-transaction.component.scss']
 })
 export class EditTransactionComponent implements OnInit, OnDestroy {
+  saveTransaction: EventEmitter<Transaction> = new EventEmitter<Transaction>();
 
-  constructor(private transactionService: TransactionService,
-              public bsModalRef: BsModalRef) { }
+  constructor(
+    public dialogRef: MatDialogRef<EditTransactionComponent>,
+    @Inject(MAT_DIALOG_DATA) public transaction: Transaction) {
+  }
 
-  transaction: Transaction;
   transactionStatus = StatusTransaction;
   transactionTypes = TypeTransaction;
 
@@ -28,16 +28,11 @@ export class EditTransactionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
   }
 
-  public setTypeTransaction(e: any): void {
-    this.transaction.type = +e.target.value;
+  onSaveTransaction(): void {
+    this.saveTransaction.emit(this.transaction);
   }
 
-  public setStatusTransaction(e: any): void {
-    this.transaction.status = +e.target.value;
+  close(result = false): void {
+    this.dialogRef.close(result);
   }
-
-  saveTransaction(): void {
-    this.bsModalRef.hide();
-  }
-
 }
