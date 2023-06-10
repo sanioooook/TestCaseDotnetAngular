@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Reflection;
+using Microsoft.IdentityModel.Abstractions;
+using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 var angularCorsPolicy = "_angularCorsPolicy";
@@ -46,7 +48,7 @@ else
 {
     connection = Environment.GetEnvironmentVariable("DefaultConnection");
 }
-Console.WriteLine($"Current connection string is: {connection}");
+LogHelper.Logger.Log(new LogEntry(){EventLogLevel = EventLogLevel.Informational, Message = $"Current connection string is: {connection}" });
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
     options.UseSqlServer(connection));
