@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Entities;
@@ -37,6 +38,7 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+Console.WriteLine($"Current connection string is: {builder.Configuration.GetConnectionString("DefaultConnection")}");
 
 var app = builder.Build();
 
