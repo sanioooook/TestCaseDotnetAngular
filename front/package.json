@@ -28,7 +28,7 @@
     "ngx-auto-unsubscribe": "^3.0.1",
     "rxjs": "~6.6.3",
     "tslib": "^2.5.0",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.14.10"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.11",
