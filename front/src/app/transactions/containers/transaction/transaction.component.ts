@@ -77,24 +77,6 @@ export class TransactionComponent implements OnInit, OnDestroy {
       );
   }
 
-  setSortByTypeTransaction(e: any): void {
-    if (e.target.value === 'Type') {
-      this.sortBy.sortTypeBy = null;
-    } else {
-      this.sortBy.sortTypeBy = +e.target.value;
-    }
-    this.getAllTransactions();
-  }
-
-  setSortByStatusTransaction(e: any): void {
-    if (e.target.value === 'Status') {
-      this.sortBy.sortStatusBy = null;
-    } else {
-      this.sortBy.sortStatusBy = +e.target.value;
-    }
-    this.getAllTransactions();
-  }
-
   exportToCSV(): void {
     this.exportSubscriber = this.transactionService.export(this.sortBy)
       .subscribe((data: Blob) => {
@@ -159,7 +141,12 @@ export class TransactionComponent implements OnInit, OnDestroy {
   }
 
   pageChanged(event: PageEvent): void {
-    this.paginator.pageNumber = event.pageIndex;
+    if (event.pageSize !== this.paginator.pageSize) {
+      this.paginator.pageSize = event.pageSize;
+      this.paginator.pageNumber = 0;
+    } else {
+      this.paginator.pageNumber = event.pageIndex;
+    }
     this.getAllTransactions();
   }
 

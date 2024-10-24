@@ -1,0 +1,25 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+
+@mixin color($theme) {
+  $color-config: mat.get-color-config($theme);
+  $is-dark-theme: map.get($color-config, 'is-dark');
+  $opacity: 0.12;
+  @if($is-dark-theme) {
+    $opacity: 0.1;
+  }
+
+  .mat-mdc-form-field.mat-focused {
+    .mat-mdc-form-field-focus-overlay {
+      opacity: $opacity;
+    }
+  }
+}
+
+@mixin theme($theme) {
+  $color-config: mat.get-color-config($theme);
+  @if $color-config != null {
+    @include color($theme);
+  }
+}

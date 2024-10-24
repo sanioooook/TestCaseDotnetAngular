@@ -1,9 +1,10 @@
-import { NgModule } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {NgModule} from '@angular/core';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
-import { AppComponent } from './app.component';
-import { TransactionsModule } from './transactions/transactions.module';
-import { AppRoutingModule } from './app-routing.module';
+import {AppComponent} from './app.component';
+import {TransactionsModule} from './transactions/transactions.module';
+import {AppRoutingModule} from './app-routing.module';
+
 // import { PipesModuleModule } from './transactions/models/pipes-module.module';
 
 @NgModule({
@@ -19,4 +20,5 @@ import { AppRoutingModule } from './app-routing.module';
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
