@@ -5,7 +5,7 @@
         <div>
           <mat-form-field class="mr-2">
             <mat-label>{{'Status'}}</mat-label>
-            <mat-select [(ngModel)]="sortBy.sortStatusBy">
+            <mat-select [ngModel]="sortBy.sortStatusBy" (ngModelChange)="sortStatusChange($event)">
               <mat-option [value]="null">{{'None'}}</mat-option>
               <mat-option *ngFor="let status of transactionStatus | enumToArray" [value]="transactionStatus[status]">
                 {{status}}
@@ -14,7 +14,7 @@
           </mat-form-field>
           <mat-form-field>
             <mat-label>{{'Type'}}</mat-label>
-            <mat-select [(ngModel)]="sortBy.sortTypeBy">
+            <mat-select [ngModel]="sortBy.sortTypeBy" (ngModelChange)="sortTypeChanged($event)">
               <mat-option [value]="null">{{'None'}}</mat-option>
               <mat-option *ngFor="let type of transactionTypes | enumToArray" [value]="transactionTypes[type]">
                 {{type}}

@@ -5,7 +5,7 @@ import {Pagination} from '../models/interfaces/pagination';
 import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {SortBy} from '../models/interfaces/sort-by';
-
+import {environment} from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,7 @@ export class TransactionService {
   constructor(private http: HttpClient) {
   }
 
-  url = 'https://localhost:5001/api/Transaction';
+  url = `${environment.api_url}/Transaction`;
 
   getTransactions(pagination: Pagination<any>, sortBy: SortBy)
     : Observable<Pagination<Transaction>> {

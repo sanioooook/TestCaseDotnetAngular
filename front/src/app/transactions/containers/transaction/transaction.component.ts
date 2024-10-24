@@ -15,7 +15,7 @@ import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {Overlay} from '@angular/cdk/overlay';
 import {dialogConfigHelper} from '../../../helpers';
 import {catchError, tap} from 'rxjs/operators';
-import {PageEvent} from "@angular/material/paginator";
+import {PageEvent} from '@angular/material/paginator';
 
 @AutoUnsubscribe()
 @Component({
@@ -145,6 +145,17 @@ export class TransactionComponent implements OnInit, OnDestroy {
     this.createSubscriber = createModalRef.componentInstance
       .createTransaction.subscribe((transaction) =>
         this.createTransaction(transaction, createModalRef));
+  }
+
+  sortTypeChanged(sortTypeBy: TypeTransaction): void {
+    this.sortBy.sortTypeBy = sortTypeBy;
+    this.getAllTransactions();
+  }
+
+
+  sortStatusChange(sortStatusBy: StatusTransaction): void {
+    this.sortBy.sortStatusBy = sortStatusBy;
+    this.getAllTransactions();
   }
 
   pageChanged(event: PageEvent): void {

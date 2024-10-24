@@ -21,11 +21,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: angularCorsPolicy, builder =>
     {
+        var fronendUrl = Environment.GetEnvironmentVariable("FRONT_URL") ?? "http://localhost:4200";
         builder
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
-            .WithOrigins("http://localhost:4200", "http://localhost:5000", "https://localhost:5001");
+            .WithOrigins(fronendUrl, "http://localhost:5000", "https://localhost:5001");
     });
 });
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
@@ -38,16 +39,17 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-string connection;
-if (builder.Environment.IsDevelopment())
-{
-    builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
-    connection = builder.Configuration.GetConnectionString("DefaultConnection");
-}
-else
-{
-    connection = Environment.GetEnvironmentVariable("DefaultConnection");
-}
+LogHelper.Logger.Log(new LogEntry() { EventLogLevel = EventLogLevel.Informational, Message = $"Environment IsDevelopment: {builder.Environment.IsDevelopment()}" });
+//string connection;
+//if (builder.Environment.IsDevelopment())
+//{
+//    builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
+//    connection = builder.Configuration.GetConnectionString("DefaultConnection");
+//}
+//else
+//{
+var connection = builder.Configuration.GetConnectionString("DefaultConnection");
+//}
 LogHelper.Logger.Log(new LogEntry(){EventLogLevel = EventLogLevel.Informational, Message = $"Current connection string is: {connection}" });
 
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
@@ -68,10 +70,8 @@ else
 
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-
-    var context = services.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    //context.Database.EnsureCreated();
     if (context.Database.GetPendingMigrations().Any())
     {
         context.Database.Migrate();
@@ -80,10 +80,11 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 
+app.UseCors(angularCorsPolicy);
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.UseCors(angularCorsPolicy);
 
 app.Run();
