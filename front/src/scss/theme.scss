@@ -7,15 +7,15 @@
 @include mat.core();
 
 // Define a typography
-$typography:  mat.define-typography-config(
+$typography:  mat.m2-define-typography-config(
   $font-family: 'Roboto, "Helvetica Neue", sans-serif',
-  $headline-1:  mat.define-typography-level(112px, 300, $letter-spacing: -0.05em),
-  $headline-2:  mat.define-typography-level(56px, 400, $letter-spacing: -0.02em),
-  $headline-3:  mat.define-typography-level(45px, 400, $letter-spacing: -0.005em),
-  $headline-4:  mat.define-typography-level(34px, 400),
-  $headline-5:  mat.define-typography-level(24px, 400),
+  $headline-1:  mat.m2-define-typography-level(112px, 300, $letter-spacing: -0.05em),
+  $headline-2:  mat.m2-define-typography-level(56px, 400, $letter-spacing: -0.02em),
+  $headline-3:  mat.m2-define-typography-level(45px, 400, $letter-spacing: -0.005em),
+  $headline-4:  mat.m2-define-typography-level(34px, 400),
+  $headline-5:  mat.m2-define-typography-level(24px, 400),
   //$headline-6:  mat.define-typography-level(20px, 500),
-  $subtitle-1:  mat.define-typography-level(16px, 400),
+  $subtitle-1:  mat.m2-define-typography-level(16px, 400),
   //$subtitle-2:  mat.define-typography-level(15px, 400),
   //$body-1:      mat.define-typography-level(14px, 400),
   //$body-2:      mat.define-typography-level(14px, 500),
@@ -24,19 +24,19 @@ $typography:  mat.define-typography-config(
 );
 
 // Define a light theme
-$light-theme: mat.define-light-theme((
+$light-theme: mat.m2-define-light-theme((
   color: (
-    primary: mat.define-palette(mat.$indigo-palette),
-    accent: mat.define-palette(mat.$pink-palette),
+    primary: mat.m2-define-palette(mat.$m2-indigo-palette),
+    accent: mat.m2-define-palette(mat.$m2-pink-palette),
   ),
   typography: $typography,
 ));
 
 // Define a dark theme
-$dark-theme: mat.define-dark-theme((
+$dark-theme: mat.m2-define-dark-theme((
   color: (
-    primary: mat.define-palette(mat.$pink-palette),
-    accent:  mat.define-palette(mat.$orange-palette),
+    primary: mat.m2-define-palette(mat.$m2-pink-palette),
+    accent:  mat.m2-define-palette(mat.$m2-orange-palette),
   ),
   typography: $typography,
 ));

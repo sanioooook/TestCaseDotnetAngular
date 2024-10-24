@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {
   EditTransactionComponent,
@@ -32,7 +32,6 @@ import {MatTooltipModule} from '@angular/material/tooltip';
   imports: [
     TransactionRoutingModule,
     FormsModule,
-    HttpClientModule,
     CommonModule,
     MatDialogModule,
     MatButtonModule,
@@ -44,7 +43,10 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MatIconModule,
     MatTooltipModule
   ],
-  providers: [TransactionService],
+  providers: [
+    TransactionService,
+    provideHttpClient(withInterceptorsFromDi())
+  ],
   bootstrap: [],
   exports: [
     TransactionComponent,

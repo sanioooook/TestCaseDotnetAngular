@@ -3,7 +3,7 @@
 
 
 @mixin color($theme) {
-  $color-config: mat.get-color-config($theme);
+  $color-config: mat.m2-get-color-config($theme);
   $is-dark-theme: map.get($color-config, 'is-dark');
   $opacity: 0.12;
   @if($is-dark-theme) {
@@ -18,7 +18,7 @@
 }
 
 @mixin theme($theme) {
-  $color-config: mat.get-color-config($theme);
+  $color-config: mat.m2-get-color-config($theme);
   @if $color-config != null {
     @include color($theme);
   }
