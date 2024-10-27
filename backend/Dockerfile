@@ -1,6 +1,6 @@
 ARG FRONT_URL
 # Use the official .NET SDK image to build the application
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY . .
 RUN dotnet publish ./WebAPI/WebAPI.csproj -c Release -o out
 
 # Use the official .NET runtime image to run the application
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 WORKDIR /app
 
